@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>HERO.Bot Simulator</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; display:flex; height:100vh }
+      #left { width: 60%; padding: 12px; box-sizing:border-box }
+      #right { width: 40%; padding: 12px; box-sizing:border-box; border-left:1px solid #ddd }
+      #face { width:100%; height:360px; background:#111; color:#0f0; display:flex; align-items:center; justify-content:center; font-size:48px }
+      .panel { margin-bottom:12px }
+      .log { height:240px; overflow:auto; background:#000; color:#0f0; padding:8px; font-family:monospace }
+      .events button { margin:4px }
+    </style>
+  </head>
+  <body>
+    <div id="left">
+      <div id="face">:)</div>
+      <div class="panel">Animation: <span id="animation">-</span></div>
+      <div class="panel">State: <strong id="state">-</strong></div>
+      <div class="panel">Timeline:<div id="timeline" style="height:120px; overflow:auto; background:#f8f8f8; padding:6px; border:1px solid #ddd"></div></div>
+    </div>
+    <div id="right">
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <button id="tabTest">Test</button>
+        <button id="tabDev">Developer</button>
+        <button id="tabInspector">Inspector</button>
+      </div>
+      <div id="panelTest" class="panel">
+        <div><strong>Trigger event</strong></div>
+        <div id="eventButtons"></div>
+      </div>
+      <div id="panelDev" class="panel" style="display:none">
+        <div><strong>Event Log</strong></div>
+        <div class="log" id="log"></div>
+      </div>
+      <div id="panelInspector" class="panel" style="display:none">
+        <div><strong>Inspector</strong></div>
+        <div style="font-family:monospace; font-size:13px">
+          <div>Current State: <span id="ins_state">-</span></div>
+          <div>Last Event: <span id="ins_event">-</span></div>
+          <div>Queue length: <span id="ins_queue">0</span></div>
+          <div>Animation: <span id="ins_anim">-</span></div>
+          <div>FPS: <span id="ins_fps">-</span></div>
+          <div>Time in state: <span id="ins_tstate">0ms</span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.getElementById('tabTest').onclick = ()=>{ document.getElementById('panelTest').style.display='block'; document.getElementById('panelDev').style.display='none'; document.getElementById('panelInspector').style.display='none' }
+      document.getElementById('tabDev').onclick = ()=>{ document.getElementById('panelTest').style.display='none'; document.getElementById('panelDev').style.display='block'; document.getElementById('panelInspector').style.display='none' }
+      document.getElementById('tabInspector').onclick = ()=>{ document.getElementById('panelTest').style.display='none'; document.getElementById('panelDev').style.display='none'; document.getElementById('panelInspector').style.display='block' }
+    </script>
+    <script src="components/FaceRenderer.js"></script>
+    <script src="components/AnimationRenderer.js"></script>
+    <script src="components/Timeline.js"></script>
+    <script src="components/Inspector.js"></script>
+    <script src="renderer.js"></script>
+  </body>
+</html>

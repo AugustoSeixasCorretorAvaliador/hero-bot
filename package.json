@@ -1,0 +1,14 @@
+{
+  "name": "hero-bot",
+  "version": "0.1.0-alpha",
+  "description": "HERO.Bot - Physical AI Companion for HERO.IA",
+  "homepage": "https://hero.ia.br/hero-bot",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "simulator": "cd firmware/simulator && npm start"
+  },
+  "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1"
+  }
+}
