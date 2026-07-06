@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HERO.Bot — Physical AI Companion for HERO.IA</title>
+  <meta name="description" content="HERO.Bot — O companheiro físico inteligente da HERO.IA. Desenvolva e teste com o Simulator antes do hardware." />
+  <link rel="canonical" href="https://hero.ia.br/hero-bot" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="HERO.Bot — Physical AI Companion for HERO.IA" />
+  <meta property="og:description" content="HERO.Bot — O companheiro físico inteligente da HERO.IA. Desenvolva e teste com o Simulator antes do hardware." />
+  <meta property="og:image" content="https://hero.ia.br/hero-bot/assets/images/hero-bot.png" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HERO.Bot — Physical AI Companion for HERO.IA" />
+  <meta name="twitter:description" content="HERO.Bot — O companheiro físico inteligente da HERO.IA. Desenvolva e teste com o Simulator antes do hardware." />
+  <meta name="twitter:image" content="https://hero.ia.br/hero-bot/assets/images/hero-bot1.png" />
+
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">
+        <img src="assets/images/hero-bot.png" alt="HERO.Bot logo" class="logo" loading="lazy" />
+        <div class="brand-text">
+          <div class="org">HERO.IA</div>
+          <h1>HERO.Bot</h1>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#what">O que é</a>
+        <a href="#features">Funcionalidades</a>
+        <a href="#how">Como funciona</a>
+        <a href="#simulator">Simulator</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <h2>O companheiro físico inteligente da HERO.IA</h2>
+          <p class="lead">IA que analisa, sugere, executa e comemora junto com você.</p>
+          <div class="cta">
+            <button id="demoBtn" class="btn primary">Solicitar demonstração</button>
+            <button id="simBtn" class="btn ghost">Ver simulador</button>
+          </div>
+        </div>
+        <div class="hero-media">
+          <img src="assets/images/hero-bot1.png" alt="HERO.Bot device" class="hero-img" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <section id="what" class="section container">
+      <h3>O que é o HERO.Bot</h3>
+      <p>HERO.Bot é um dispositivo físico e um ambiente de simulação que reage a eventos do HERO.IA, integra com WhatsApp Web e automações comerciais para proporcionar notificações, estados visuais e interação assistiva.</p>
+    </section>
+
+    <section id="features" class="section container">
+      <h3>Funcionalidades</h3>
+      <div class="cards">
+        <div class="card">Reage ao HERO.IA em tempo real</div>
+        <div class="card">Mostra estados da IA</div>
+        <div class="card">Acompanha atendimento no WhatsApp</div>
+        <div class="card">Integra com HeroCore</div>
+        <div class="card">Funciona primeiro no Simulator</div>
+        <div class="card">Preparado para ESP32-S3</div>
+        <div class="card">Futuro suporte a voz, áudio e OTA</div>
+        <div class="card">100% controle humano</div>
+      </div>
+    </section>
+
+    <section id="how" class="section container">
+      <h3>Como funciona</h3>
+      <div class="diagram">
+        <div class="node">HERO.IA</div>
+        <div class="arrow">→</div>
+        <div class="node">Chrome / WebSocket</div>
+        <div class="arrow">→</div>
+        <div class="node">HeroCore</div>
+        <div class="arrow">→</div>
+        <div class="node">HERO.Bot Simulator</div>
+        <div class="arrow">→</div>
+        <div class="node">Device físico</div>
+      </div>
+    </section>
+
+    <section id="simulator" class="section container">
+      <h3>Simulator</h3>
+      <p>O HERO.Bot Studio / Simulator permite testar o comportamento completo do HeroOS no PC antes do hardware. Compatível com o protocolo HeroEvent via WebSocket(local).</p>
+      <p><a class="btn primary" href="firmware/simulator" target="_blank" rel="noopener">Abrir Simulator</a></p>
+    </section>
+
+    <section id="roadmap" class="section container">
+      <h3>Roadmap</h3>
+      <ul>
+        <li><strong>V1:</strong> HeroCore + Simulator</li>
+        <li><strong>V2:</strong> Chrome Extension + WebSocket</li>
+        <li><strong>V3:</strong> LILYGO T-Display S3</li>
+        <li><strong>V4:</strong> Produto comercial</li>
+      </ul>
+    </section>
+
+    <section class="cta-final section container">
+      <h3>Controle humano. IA assistiva. Presença física.</h3>
+      <button id="whatsappBtn" class="btn whatsapp">Solicitar demonstração via WhatsApp</button>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>© HERO.IA — HERO.Bot • <a href="README.md">Repository</a></div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
