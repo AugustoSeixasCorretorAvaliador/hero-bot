@@ -54,7 +54,7 @@
           </div>
         </div>
         <div class="hero-media">
-          <img src="assets/images/hero-bot1.png" alt="HERO.Bot device" class="hero-img" loading="lazy" />
+          <img src="assets/images/hero-attachment-1.png" alt="HERO.Bot device" class="hero-img" loading="eager" />
         </div>
       </div>
     </section>
@@ -66,7 +66,8 @@
 
     <section id="features" class="section container">
       <h3>Funcionalidades</h3>
-      <div class="cards">
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div class="cards" style="flex:1">
         <div class="card">Reage ao HERO.IA em tempo real</div>
         <div class="card">Mostra estados da IA</div>
         <div class="card">Acompanha atendimento no WhatsApp</div>
@@ -75,6 +76,10 @@
         <div class="card">Preparado para ESP32-S3</div>
         <div class="card">Futuro suporte a voz, áudio e OTA</div>
         <div class="card">100% controle humano</div>
+        </div>
+        <aside style="width:300px">
+          <img src="assets/images/hero-attachment-2.png" alt="HERO.Bot visual" style="width:100%;border-radius:10px;box-shadow:0 12px 40px rgba(2,6,23,0.6)" loading="lazy" />
+        </aside>
       </div>
     </section>
 
@@ -110,9 +115,20 @@
     </section>
 
     <section class="cta-final section container">
+      <div class="cta-banner">
+        <img src="assets/images/hero-attachment-3.png" alt="HERO.Bot demonstração" style="width:100%;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6)" loading="lazy" />
+      </div>
       <h3>Controle humano. IA assistiva. Presença física.</h3>
-      <button id="whatsappBtn" class="btn whatsapp">Solicitar demonstração via WhatsApp</button>
+      <p class="cta-strong">Quer ver HERO.Bot em ação? Solicite uma demonstração guiada e ganhe 7 dias de teste grátis. Nosso time agenda rápido e mostra resultados reais.</p>
+      <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:18px">
+        <button id="whatsappBtn" class="btn whatsapp big">Solicitar demonstração — Ganhe 7 dias grátis</button>
+        <a href="#simulator" class="btn ghost big">Testar no Simulator</a>
+      </div>
     </section>
+
+  <div class="sticky-cta" id="stickyCta">
+    <a href="#" id="stickyWa" class="btn whatsapp">📲 Solicitar demonstração</a>
+  </div>
 
   </main>
 
