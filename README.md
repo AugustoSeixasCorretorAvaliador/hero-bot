@@ -1,5 +1,9 @@
 # HERO.Bot
 
+![Build](https://github.com/AugustoSeixasCorretorAvaliador/hero-bot/actions/workflows/build.yml/badge.svg)
+![License](https://img.shields.io/github/license/AugustoSeixasCorretorAvaliador/hero-bot)
+![Version](https://img.shields.io/badge/version-0.1.0--alpha-blue)
+
 Physical AI Companion for HERO.IA
 
 Website: https://hero.ia.br/hero-bot
