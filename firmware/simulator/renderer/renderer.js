@@ -7,6 +7,22 @@ const animEl = document.getElementById('animation')
 const faceEl = document.getElementById('face')
 const timelineEl = document.getElementById('timeline')
 
+function isOfficialHeroEvent(type) {
+  return EVENTS.includes(type)
+}
+
+function resolveAnimationName(ev) {
+  if (typeof ev?.payload === 'string' && ev.payload.trim()) {
+    return ev.payload.trim()
+  }
+
+  if (typeof ev?.payload?.animation === 'string' && ev.payload.animation.trim()) {
+    return ev.payload.animation.trim()
+  }
+
+  return ev?.type || '-'
+}
+
 function addLog(line) {
   const p = document.createElement('div')
   p.textContent = '['+new Date().toLocaleTimeString()+'] '+line
@@ -59,12 +75,12 @@ window.electronAPI.loadAnimations().then(list=>{
 window.electronAPI.onHeroEvent((ev)=>{
   addLog('Received: '+JSON.stringify(ev))
   const prevState = stateEl.textContent || '-'
-  if (ev.type === 'READY' || ev.type === 'BOOT') setState('READY')
-  if (ev.type === 'IDLE') setState('IDLE')
-  if (ev.type === 'THINKING' || ev.type === 'WRITING') setState('BUSY')
-  if (ev.type === 'SUCCESS') setState('SUCCESS')
-  if (ev.type === 'ERROR') setState('ERROR')
-  const anim = ev.payload || ev.type
+
+  if (isOfficialHeroEvent(ev?.type)) {
+    setState(ev.type)
+  }
+
+  const anim = resolveAnimationName(ev)
   setAnimation(anim)
   // find animation and play it
   const catalog = window._SIM_ANIMATIONS || []
