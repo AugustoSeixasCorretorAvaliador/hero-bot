@@ -1,0 +1,9 @@
+{
+  "name": "idle",
+  "fps": 3,
+  "frames": [
+    "IDLE\n.",
+    "IDLE\n..",
+    "IDLE\n..."
+  ]
+}

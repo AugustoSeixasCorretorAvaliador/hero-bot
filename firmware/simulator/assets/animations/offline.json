@@ -1,0 +1,8 @@
+{
+  "name": "offline",
+  "fps": 2,
+  "frames": [
+    "OFFLINE\n [signal lost] \n---- X ----\n  no link",
+    "OFFLINE\n [retrying...] \n---- X ----\n  no link"
+  ]
+}

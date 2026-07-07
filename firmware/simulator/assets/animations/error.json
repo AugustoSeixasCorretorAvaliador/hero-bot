@@ -1,0 +1,8 @@
+{
+  "name": "error",
+  "fps": 2,
+  "frames": [
+    "ERROR\n\\    /\n \\  /\n  \\/\n  /\\\n /  \\\n/    \\",
+    "ERROR\nX"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "writing",
+  "fps": 4,
+  "frames": [
+    "WRITING\n[===>    ]",
+    "WRITING\n[=====>  ]",
+    "WRITING\n[=======>]",
+    "WRITING\n[=====>  ]"
+  ]
+}

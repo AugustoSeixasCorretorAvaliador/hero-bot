@@ -6,6 +6,13 @@ const stateEl = document.getElementById('state')
 const animEl = document.getElementById('animation')
 const faceEl = document.getElementById('face')
 const timelineEl = document.getElementById('timeline')
+const STATE_SOUNDS = Object.fromEntries(
+  EVENTS.map((evt) => [evt, new Audio(`../assets/sounds/${evt.toLowerCase()}.mp3`)])
+)
+
+Object.values(STATE_SOUNDS).forEach((audio) => {
+  audio.preload = 'auto'
+})
 
 function isOfficialHeroEvent(type) {
   return EVENTS.includes(type)
@@ -21,6 +28,19 @@ function resolveAnimationName(ev) {
   }
 
   return ev?.type || '-'
+}
+
+function playStateSound(type) {
+  const sound = STATE_SOUNDS[type]
+  if (!sound) return
+
+  try {
+    sound.currentTime = 0
+    const playResult = sound.play()
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(() => {})
+    }
+  } catch (_) {}
 }
 
 function addLog(line) {
@@ -78,6 +98,7 @@ window.electronAPI.onHeroEvent((ev)=>{
 
   if (isOfficialHeroEvent(ev?.type)) {
     setState(ev.type)
+    playStateSound(ev.type)
   }
 
   const anim = resolveAnimationName(ev)

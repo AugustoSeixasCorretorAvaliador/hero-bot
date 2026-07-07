@@ -1,0 +1,8 @@
+{
+  "name": "ready",
+  "fps": 2,
+  "frames": [
+    "  o   o  \n    ^    \n  \\___/   \nREADY",
+    "  o   o  \n    ^    \n  \\___/   \nPronto"
+  ]
+}

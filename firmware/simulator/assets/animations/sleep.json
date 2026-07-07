@@ -1,0 +1,9 @@
+{
+  "name": "sleep",
+  "fps": 2,
+  "frames": [
+    "SLEEP\n  z",
+    "SLEEP\n  z z",
+    "SLEEP\n  z z z"
+  ]
+}

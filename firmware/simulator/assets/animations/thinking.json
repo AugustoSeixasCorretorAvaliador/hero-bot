@@ -1,0 +1,11 @@
+{
+  "name": "thinking",
+  "fps": 6,
+  "frames": [
+    "THINKING\n   |",
+    "THINKING\n   /",
+    "THINKING\n   -",
+    "THINKING\n   \\\\",
+    "THINKING\n   |"
+  ]
+}
