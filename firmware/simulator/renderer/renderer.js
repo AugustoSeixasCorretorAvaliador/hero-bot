@@ -10,6 +10,7 @@ const EXPERIENCE_CATALOG = {}
 const SOUND_CACHE = {}
 let activeExperience = null
 let transitionTimer = null
+let activePriorityLockUntil = 0
 
 function isOfficialHeroEvent(type) {
   return EVENTS.includes(type)
@@ -87,6 +88,26 @@ function scheduleAutoTransition(experience) {
   }, experience.duration)
 }
 
+function isPriorityLocked() {
+  return Date.now() < activePriorityLockUntil
+}
+
+function canApplyExperience(experience) {
+  if (!activeExperience) return true
+  if (!isPriorityLocked()) return true
+
+  return Number(experience.priority) >= Number(activeExperience.priority)
+}
+
+function updatePriorityLock(experience) {
+  if (!experience?.duration || experience.duration <= 0) {
+    activePriorityLockUntil = 0
+    return
+  }
+
+  activePriorityLockUntil = Date.now() + experience.duration
+}
+
 function addLog(line) {
   const p = document.createElement('div')
   p.textContent = '['+new Date().toLocaleTimeString()+'] '+line
@@ -161,12 +182,13 @@ window.electronAPI.onHeroEvent((ev)=>{
     return
   }
 
-  if (activeExperience && Number(experience.priority) < Number(activeExperience.priority)) {
-    addLog(`Ignored ${experience.id} due to priority ${experience.priority} < ${activeExperience.priority}`)
+  if (!canApplyExperience(experience)) {
+    addLog(`Ignored ${experience.id} due to active priority lock (${experience.priority} < ${activeExperience.priority})`)
     return
   }
 
   activeExperience = experience
+  updatePriorityLock(experience)
   setState(experience.id)
   playExperienceSound(experience.sound)
   scheduleAutoTransition(experience)
