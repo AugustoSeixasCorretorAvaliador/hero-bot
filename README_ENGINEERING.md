@@ -1,6 +1,6 @@
-# Tabbie — Engineering Reverse-Engineering Report
+# HERO.BOT — Engineering Reverse-Engineering Report
 
-Este documento contém a engenharia reversa completa do projeto **Tabbie** (código em `hero.bot`). Todas as conclusões são justificadas por referências a arquivos, funções e trechos do código-fonte.
+Este documento contém a engenharia reversa completa do projeto **HERO.BOT** (código em `hero.bot`). Todas as conclusões são justificadas por referências a arquivos, funções e trechos do código-fonte.
 
 ## Sumário
 - Visão geral e objetivo
@@ -19,7 +19,7 @@ Este documento contém a engenharia reversa completa do projeto **Tabbie** (cód
 
 ## 1. Visão Geral
 
-- Objetivo: Tabbie é um robô de mesa com rosto em OLED que exibe animações, executa pequenas interações (servo para pescoço) e recebe comandos de um dashboard local. (veja [hero.bot/README.md](hero.bot/README.md#L1-L20) e [hero.bot/docs/get_started.md](hero.bot/docs/get_started.md#L1-L30)).
+- Objetivo: HERO.BOT é um robô de mesa com rosto em OLED que exibe animações, executa pequenas interações (servo para pescoço) e recebe comandos de um dashboard local. (veja [hero.bot/README.md](hero.bot/README.md#L1-L20) e [hero.bot/docs/get_started.md](hero.bot/docs/get_started.md#L1-L30)).
 - Componentes principais: Dashboard React (`hero.bot/app/`), Firmware ESP32 (`hero.bot/firmware/`), Assets de animação (`hero.bot/firmware/src/*.h`), hardware (STL) (`hero.bot/hardware/STL/`).
 
 ## 2. Arquitetura e Diagrama de Componentes
@@ -39,12 +39,12 @@ Display (128×64 OLED) + Servo
 ```
 
 - Referências:
-  - `hero.bot/app/src/contexts/TabbieContext.tsx` — descoberta/cliente HTTP e `sendAnimation()` (mDNS fallback para `tabbie.local`). See [hero.bot/app/src/contexts/TabbieContext.tsx](hero.bot/app/src/contexts/TabbieContext.tsx#L1-L40).
+  - `hero.bot/app/src/contexts/HERO.BOTContext.tsx` — descoberta/cliente HTTP e `sendAnimation()` (mDNS fallback para `HERO.BOT.local`). See [hero.bot/app/src/contexts/HERO.BOTContext.tsx](hero.bot/app/src/contexts/HERO.BOTContext.tsx#L1-L40).
   - `hero.bot/firmware/src/main.cpp` — WebServer endpoints `/api/*` e lógica de Wi‑Fi/AP/captive portal. See [hero.bot/firmware/src/main.cpp](hero.bot/firmware/src/main.cpp#L520-L560).
 
 ## 3. Fluxo (Dashboard → ESP32 → Display)
 
-1. Dashboard chama `TabbieContext.sendAnimation()` que faz `fetch('http://<ip>/api/animation', POST, JSON)` — [hero.bot/app/src/contexts/TabbieContext.tsx](hero.bot/app/src/contexts/TabbieContext.tsx#L120-L200).
+1. Dashboard chama `HERO.BOTContext.sendAnimation()` que faz `fetch('http://<ip>/api/animation', POST, JSON)` — [hero.bot/app/src/contexts/HERO.BOTContext.tsx](hero.bot/app/src/contexts/HERO.BOTContext.tsx#L120-L200).
 2. ESP32 recebe POST `/api/animation` em `handleAnimation()` (ArduinoJson parsed) e atualiza `currentAnimation`, `currentTask`, `animationStartTime` — [hero.bot/firmware/src/main.cpp](hero.bot/firmware/src/main.cpp#L760-L820).
 3. `loop()` chama `updateDisplay()` que seleciona a rotina `draw*Animation()` correspondente e desenha frames com U8g2 `drawBitmap` — [hero.bot/firmware/src/main.cpp](hero.bot/firmware/src/main.cpp#L840-L900) e animation headers em `hero.bot/firmware/src/` (ex.: `idle01.h`).
 4. Sequência de keyframes no `draw*` podem comandar `moveServoTo()`; `updateServoMovement()` executa movimento suave — [hero.bot/firmware/src/main.cpp](hero.bot/firmware/src/main.cpp#L28-L36) and [hero.bot/firmware/src/main.cpp](hero.bot/firmware/src/main.cpp#L60-L80).
@@ -108,9 +108,9 @@ Fluxo de inicialização (ver `main.cpp`):
 ## 6. Estrutura React (Dashboard)
 
 - Stack: Vite + React (ver `hero.bot/app/package.json`, scripts `dev` uses `vite`) — [hero.bot/app/package.json](hero.bot/app/package.json#L1-L20).
-- Entrada: `hero.bot/app/src/main.tsx` e `hero.bot/app/src/App.tsx` — `App.tsx` monta providers (`TodoProvider`, `DarkModeProvider`, `TabbieProvider`) e páginas (Dashboard, Pomodoro, Settings) — [hero.bot/app/src/App.tsx](hero.bot/app/src/App.tsx#L1-L40).
-- Comunicação: `hero.bot/app/src/contexts/TabbieContext.tsx` provides `sendAnimation()`, `checkConnection()`, `triggerDebug()` and auto-sync behavior with pomodoro state; it calls `fetch('http://<ip>/api/status')` and `fetch('http://<ip>/api/animation')` — [hero.bot/app/src/contexts/TabbieContext.tsx](hero.bot/app/src/contexts/TabbieContext.tsx#L1-L120).
-- Estado global: React Contexts (`TabbieContext`, `TodoContext`, `DarkModeContext`) — see `hero.bot/app/src/contexts/`.
+- Entrada: `hero.bot/app/src/main.tsx` e `hero.bot/app/src/App.tsx` — `App.tsx` monta providers (`TodoProvider`, `DarkModeProvider`, `HERO.BOTProvider`) e páginas (Dashboard, Pomodoro, Settings) — [hero.bot/app/src/App.tsx](hero.bot/app/src/App.tsx#L1-L40).
+- Comunicação: `hero.bot/app/src/contexts/HERO.BOTContext.tsx` provides `sendAnimation()`, `checkConnection()`, `triggerDebug()` and auto-sync behavior with pomodoro state; it calls `fetch('http://<ip>/api/status')` and `fetch('http://<ip>/api/animation')` — [hero.bot/app/src/contexts/HERO.BOTContext.tsx](hero.bot/app/src/contexts/HERO.BOTContext.tsx#L1-L120).
+- Estado global: React Contexts (`HERO.BOTContext`, `TodoContext`, `DarkModeContext`) — see `hero.bot/app/src/contexts/`.
 
 ## 7. Animações — Organização e Formato
 

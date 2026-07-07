@@ -1,7 +1,6 @@
 # LEGACY
 
-Historical notes and references. Any mention of older product names (e.g. Tabbie)
+Historical notes and references. Any mention of older product names (e.g. HERO.BOT)
 should remain in this file and not be used in core documentation or public-facing
-artifacts.
+artifacts. Use this document for migration notes and for keeping historical context.
 
-Use this document for migration notes and for keeping historical context.

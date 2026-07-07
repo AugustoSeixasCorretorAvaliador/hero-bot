@@ -67,11 +67,11 @@ Like,
 User just started pomodoro (focus face or something?)
 
 
-Exported chat to D:\tabbie 
+Exported chat to D:\HERO.BOT 
 
 # 4. ESP32 + GME12864-11 + lopaka.app + send faces
 
-The goal now is to see whether for battery safety and not using rasberypie to use esp32 as just sort of middle maschine as I dont want to use rasberypie and some weird large batteries to Tabbie.
+The goal now is to see whether for battery safety and not using rasberypie to use esp32 as just sort of middle maschine as I dont want to use rasberypie and some weird large batteries to HERO.BOT.
 
 
 All the calculation and things will happen on the local pc/laptop, as in if we start a pomodoro, we send the animations for that to the esp32 and wipe the rest
@@ -93,7 +93,7 @@ We are able to stream images / bits over wifi to show on the face but actually m
 anyway,
 added the same thing now where users are able ot control over wifi and also in the frontend dashboard add their wifi login and such.
 
-A real pain in the ass to make it as easy as possible for someone to connect their tabbie and ran into a bunch of bugs when setting the thing up with a new esp32 which is good to learn now 
+A real pain in the ass to make it as easy as possible for someone to connect their HERO.BOT and ran into a bunch of bugs when setting the thing up with a new esp32 which is good to learn now 
 not once people start using it.
 
 

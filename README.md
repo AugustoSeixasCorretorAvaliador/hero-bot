@@ -55,24 +55,24 @@ License
 This project is MIT licensed — see `LICENSE`.
 <div align="center">
 
-# 🤖 Tabbie  
+# 🤖 HERO.BOT  
 Ever wanted a **to-do app with a Cute Face**? One that lives on your desk?
 
-**That's Tabbie.**
+**That's HERO.BOT.**
 
-[🛠️ Get started](docs/get_started.md) · [👥 Join the community](https://www.reddit.com/r/deskrobot/) · [📦 Get finished Tabbie](https://tabbie.me)
+[🛠️ Get started](docs/get_started.md) · [👥 Join the community](https://www.reddit.com/r/deskrobot/) · [📦 Get finished HERO.BOT](https://HERO.BOT.me)
 
 
 </div>
 
 ---
 
-## 🧠 What is Tabbie?
+## 🧠 What is HERO.BOT?
 
-**Tabbie is a DIY desk robot that helps you work, focus, and learn.**  
+**HERO.BOT is a DIY desk robot that helps you work, focus, and learn.**  
 It's like a to-do app — but physical, local, and full of personality.
 
-Tabbie lives on your desk, connects to your computer, and helps with small daily things like:
+HERO.BOT lives on your desk, connects to your computer, and helps with small daily things like:
 - ✅ Managing your to-do list
 - ⏲️ Running Pomodoro timers
 - 🔔 Setting reminders (like "drink water every 30 mins")
@@ -87,8 +87,8 @@ https://github.com/user-attachments/assets/2cbf9e57-a491-4764-b69d-660fd9c50714
 
 ## ✨ Made to Be Built
 
-Tabbie is open-source and totally customizable.  
-You can build it yourself with 3D-printed parts and off-the-shelf components [or just get a finished one](https://www.tabbie.me)
+HERO.BOT is open-source and totally customizable.  
+You can build it yourself with 3D-printed parts and off-the-shelf components [or just get a finished one](https://www.HERO.BOT.me)
 
 Powered by:
 - An ESP32 microcontroller
@@ -105,7 +105,7 @@ Start with the step-by-step guide (WITH A **15 MINUTE VIDEO TUTORIAL**):
 That guide covers:
 - Installing the Dashboard
 - Flashing the ESP32 firmware
-- Connecting the dashboard to your Tabbie
+- Connecting the dashboard to your HERO.BOT
 - First run checklist
 
 <!-- 
@@ -117,7 +117,7 @@ Go here and get started → [`docs/learning/README.md`](docs/learning/README.md)
 ## 🗂️ Project Structure
 
 ```txt
-tabbie/
+HERO.BOT/
 ├── app/                      # React control panel
 │
 ├── firmware/                 # Code that runs on devices

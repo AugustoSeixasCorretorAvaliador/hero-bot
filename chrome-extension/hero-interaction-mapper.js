@@ -67,7 +67,7 @@ export class HeroInteractionMapper {
 
   resolveTrigger(action) {
     const triggerMap = {
-      lead_detected: 'HOT_LEADS',
+      lead_detected: 'HOT_LEAD',
       system_boot: 'BOOT',
       sleep_timeout: 'SLEEP',
       wake_up: 'READY'

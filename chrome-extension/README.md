@@ -64,7 +64,7 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 - `WRITING`
 - `SUCCESS`
 - `ERROR`
-- `HOT_LEADS`
+- `HOT_LEAD`
 - `SLEEP`
 - `OFFLINE`
 
@@ -93,7 +93,7 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 
 ### Triggers futuros já preparados no mapper
 
-- `lead_detected` → `HOT_LEADS`
+- `lead_detected` → `HOT_LEAD`
 - `system_boot` → `BOOT`
 - `sleep_timeout` → `SLEEP`
 - `wake_up` → `READY`
