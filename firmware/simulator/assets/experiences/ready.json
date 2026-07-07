@@ -1,0 +1,10 @@
+{
+  "id": "READY",
+  "title": "Ready",
+  "animation": "ready",
+  "sound": "ready.mp3",
+  "loop": true,
+  "duration": 0,
+  "priority": 10,
+  "next": null
+}

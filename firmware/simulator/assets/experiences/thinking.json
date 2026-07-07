@@ -1,0 +1,10 @@
+{
+  "id": "THINKING",
+  "title": "Thinking",
+  "animation": "thinking",
+  "sound": "thinking.mp3",
+  "loop": true,
+  "duration": 0,
+  "priority": 20,
+  "next": "WRITING"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "SLEEP",
+  "title": "Sleep",
+  "animation": "sleep",
+  "sound": "sleep.mp3",
+  "loop": true,
+  "duration": 0,
+  "priority": 15,
+  "next": null
+}

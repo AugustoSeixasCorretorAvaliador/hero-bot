@@ -1,0 +1,10 @@
+{
+  "id": "WRITING",
+  "title": "Writing",
+  "animation": "writing",
+  "sound": "writing.mp3",
+  "loop": true,
+  "duration": 0,
+  "priority": 30,
+  "next": null
+}

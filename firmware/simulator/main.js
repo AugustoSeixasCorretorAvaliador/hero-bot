@@ -26,6 +26,7 @@ wss.on('connection', (ws) => {
 
 // IPC: provide animations list and contents to renderer
 const ASSETS_DIR = path.join(__dirname, 'assets', 'animations')
+const EXPERIENCES_DIR = path.join(__dirname, 'assets', 'experiences')
 ipcMain.handle('simulator:loadAnimations', async () => {
   try {
     const files = await fs.readdir(ASSETS_DIR)
@@ -39,6 +40,23 @@ ipcMain.handle('simulator:loadAnimations', async () => {
     return result
   } catch (e) {
     console.error('Failed to load animations', e)
+    return []
+  }
+})
+
+ipcMain.handle('simulator:loadExperiences', async () => {
+  try {
+    const files = await fs.readdir(EXPERIENCES_DIR)
+    const result = []
+    for (const f of files) {
+      if (!f.toLowerCase().endsWith('.json')) continue
+      const p = path.join(EXPERIENCES_DIR, f)
+      const txt = await fs.readFile(p, 'utf8')
+      try { result.push(JSON.parse(txt)) } catch (e) { console.warn('Invalid experience file', f) }
+    }
+    return result
+  } catch (e) {
+    console.error('Failed to load experiences', e)
     return []
   }
 })

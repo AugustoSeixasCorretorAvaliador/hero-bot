@@ -6,32 +6,50 @@ const stateEl = document.getElementById('state')
 const animEl = document.getElementById('animation')
 const faceEl = document.getElementById('face')
 const timelineEl = document.getElementById('timeline')
-const STATE_SOUNDS = Object.fromEntries(
-  EVENTS.map((evt) => [evt, new Audio(`../assets/sounds/${evt.toLowerCase()}.mp3`)])
-)
-
-Object.values(STATE_SOUNDS).forEach((audio) => {
-  audio.preload = 'auto'
-})
+const EXPERIENCE_CATALOG = {}
+const SOUND_CACHE = {}
+let activeExperience = null
+let transitionTimer = null
 
 function isOfficialHeroEvent(type) {
   return EVENTS.includes(type)
 }
 
-function resolveAnimationName(ev) {
-  if (typeof ev?.payload === 'string' && ev.payload.trim()) {
-    return ev.payload.trim()
+function resolveIncomingExperience(ev) {
+  if (!ev || !isOfficialHeroEvent(ev.type)) {
+    return null
   }
 
-  if (typeof ev?.payload?.animation === 'string' && ev.payload.animation.trim()) {
-    return ev.payload.animation.trim()
+  const fromCatalog = EXPERIENCE_CATALOG[ev.type]
+  if (fromCatalog) {
+    return fromCatalog
   }
 
-  return ev?.type || '-'
+  return {
+    id: ev.type,
+    title: ev.type,
+    animation: ev.type.toLowerCase(),
+    sound: `${ev.type.toLowerCase()}.mp3`,
+    loop: true,
+    duration: 0,
+    priority: 0,
+    next: null
+  }
 }
 
-function playStateSound(type) {
-  const sound = STATE_SOUNDS[type]
+function getSound(soundFile) {
+  if (!soundFile) return null
+  if (!SOUND_CACHE[soundFile]) {
+    const audio = new Audio(`../assets/sounds/${soundFile}`)
+    audio.preload = 'auto'
+    SOUND_CACHE[soundFile] = audio
+  }
+
+  return SOUND_CACHE[soundFile]
+}
+
+function playExperienceSound(soundFile) {
+  const sound = getSound(soundFile)
   if (!sound) return
 
   try {
@@ -41,6 +59,32 @@ function playStateSound(type) {
       playResult.catch(() => {})
     }
   } catch (_) {}
+}
+
+function clearTransitionTimer() {
+  if (!transitionTimer) return
+  clearTimeout(transitionTimer)
+  transitionTimer = null
+}
+
+function scheduleAutoTransition(experience) {
+  clearTransitionTimer()
+
+  if (!experience?.next || !experience?.duration || experience.duration <= 0) {
+    return
+  }
+
+  transitionTimer = setTimeout(() => {
+    transitionTimer = null
+    publish({
+      type: experience.next,
+      source: 'simulator:auto_transition',
+      payload: {
+        reason: 'experience_auto_transition',
+        from: experience.id
+      }
+    })
+  }, experience.duration)
 }
 
 function addLog(line) {
@@ -91,23 +135,50 @@ window.electronAPI.loadAnimations().then(list=>{
   addLog('Loaded animations: '+list.map(a=>a.name).join(', '))
 }).catch(e=>addLog('Error loading animations'))
 
+window.electronAPI.loadExperiences().then((list) => {
+  list.forEach((exp) => {
+    if (!exp?.id) return
+    EXPERIENCE_CATALOG[exp.id] = {
+      id: exp.id,
+      title: exp.title || exp.id,
+      animation: exp.animation || exp.id.toLowerCase(),
+      sound: exp.sound || `${exp.id.toLowerCase()}.mp3`,
+      loop: exp.loop !== false,
+      duration: Number(exp.duration || 0),
+      priority: Number(exp.priority || 0),
+      next: exp.next || null
+    }
+  })
+
+  addLog('Loaded experiences: '+Object.keys(EXPERIENCE_CATALOG).join(', '))
+}).catch((e) => addLog('Error loading experiences: '+(e?.message || e)))
+
 // receive HeroEvent messages (from main or external bridge)
 window.electronAPI.onHeroEvent((ev)=>{
   addLog('Received: '+JSON.stringify(ev))
-  const prevState = stateEl.textContent || '-'
-
-  if (isOfficialHeroEvent(ev?.type)) {
-    setState(ev.type)
-    playStateSound(ev.type)
+  const experience = resolveIncomingExperience(ev)
+  if (!experience) {
+    return
   }
 
-  const anim = resolveAnimationName(ev)
+  if (activeExperience && Number(experience.priority) < Number(activeExperience.priority)) {
+    addLog(`Ignored ${experience.id} due to priority ${experience.priority} < ${activeExperience.priority}`)
+    return
+  }
+
+  activeExperience = experience
+  setState(experience.id)
+  playExperienceSound(experience.sound)
+  scheduleAutoTransition(experience)
+
+  const anim = experience.animation
   setAnimation(anim)
   // find animation and play it
   const catalog = window._SIM_ANIMATIONS || []
   const aobj = catalog.find(x=>x.name===anim.toLowerCase() || x.name===anim)
-  const duration = aobj ? Math.round((aobj.frames.length / (aobj.fps||1))*1000) : 500
-  if (aobj) animRenderer.play(aobj)
+  const naturalDuration = aobj ? Math.round((aobj.frames.length / (aobj.fps||1))*1000) : 500
+  const duration = experience.duration > 0 ? experience.duration : naturalDuration
+  if (aobj) animRenderer.play(aobj, { loop: experience.loop })
   timeline.push(ev, stateEl.textContent, anim, duration)
   inspector.update({ state: stateEl.textContent, lastEvent: ev.type, queueLength: 0, animation: anim, fps: aobj ? aobj.fps : '-', timeInState: duration+'ms' })
 })

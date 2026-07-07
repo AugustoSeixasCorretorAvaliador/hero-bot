@@ -1,0 +1,10 @@
+{
+  "id": "OFFLINE",
+  "title": "Offline",
+  "animation": "offline",
+  "sound": "offline.mp3",
+  "loop": true,
+  "duration": 0,
+  "priority": 100,
+  "next": null
+}

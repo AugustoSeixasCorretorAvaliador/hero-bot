@@ -1,0 +1,10 @@
+{
+  "id": "HOT_LEAD",
+  "title": "Hot Lead",
+  "animation": "hot_lead",
+  "sound": "hot_lead.mp3",
+  "loop": false,
+  "duration": 3000,
+  "priority": 85,
+  "next": "READY"
+}

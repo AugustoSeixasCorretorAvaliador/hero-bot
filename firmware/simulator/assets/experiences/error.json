@@ -1,0 +1,10 @@
+{
+  "id": "ERROR",
+  "title": "Error",
+  "animation": "error",
+  "sound": "error.mp3",
+  "loop": false,
+  "duration": 3000,
+  "priority": 90,
+  "next": "READY"
+}

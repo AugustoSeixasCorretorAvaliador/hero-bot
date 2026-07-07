@@ -1,0 +1,10 @@
+{
+  "id": "SUCCESS",
+  "title": "Success",
+  "animation": "success",
+  "sound": "success.mp3",
+  "loop": false,
+  "duration": 2500,
+  "priority": 80,
+  "next": "READY"
+}

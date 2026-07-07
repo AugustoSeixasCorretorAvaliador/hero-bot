@@ -1,0 +1,10 @@
+{
+  "id": "BOOT",
+  "title": "Boot",
+  "animation": "boot",
+  "sound": "boot.mp3",
+  "loop": false,
+  "duration": 2500,
+  "priority": 50,
+  "next": "READY"
+}
