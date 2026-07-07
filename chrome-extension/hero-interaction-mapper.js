@@ -65,33 +65,50 @@ export class HeroInteractionMapper {
     }
   }
 
-  handleInteraction(action, detail = {}) {
+  resolveTrigger(action) {
+    const triggerMap = {
+      lead_detected: 'HOT_LEADS',
+      system_boot: 'BOOT',
+      sleep_timeout: 'SLEEP',
+      wake_up: 'READY'
+    };
+
+    return triggerMap[action] || null;
+  }
+
+  handleTrigger(action, detail = {}, source = 'chrome-extension') {
+    const mappedEvent = this.resolveTrigger(action);
+    if (mappedEvent) {
+      this.setState(mappedEvent, { reason: action, source, ...detail });
+      return;
+    }
+
     switch (action) {
       case 'whatsapp_loaded':
-        this.setState('READY', { reason: 'whatsapp_loaded', ...detail });
+        this.setState('READY', { reason: 'whatsapp_loaded', source, ...detail });
         break;
       case 'composition_mouse_enter':
       case 'composition_focus':
         if (this.state === 'READY' || this.state === 'IDLE') {
-          this.setState('THINKING', { reason: action, ...detail });
+          this.setState('THINKING', { reason: action, source, ...detail });
         }
         break;
       case 'typed_key':
       case 'deleted_text':
       case 'content_changed':
         if (this.state !== 'SUCCESS' && this.state !== 'ERROR' && this.state !== 'OFFLINE') {
-          this.setState('WRITING', { reason: action, ...detail });
+          this.setState('WRITING', { reason: action, source, ...detail });
         }
         break;
       case 'send_button_click':
       case 'enter_key_send':
-        this.setState('SUCCESS', { reason: action, ...detail });
+        this.setState('SUCCESS', { reason: action, source, ...detail });
         break;
       case 'websocket_disconnected':
-        this.setState('OFFLINE', { reason: action, ...detail });
+        this.setState('OFFLINE', { reason: action, source, ...detail });
         break;
       case 'internal_error':
-        this.setState('ERROR', { reason: action, ...detail });
+        this.setState('ERROR', { reason: action, source, ...detail });
         break;
       case 'window_blur':
         // Window blur is kept as a trigger event but does not change the current Hero state.
@@ -99,5 +116,9 @@ export class HeroInteractionMapper {
       default:
         break;
     }
+  }
+
+  handleInteraction(action, detail = {}) {
+    this.handleTrigger(action, detail, 'chrome-extension');
   }
 }

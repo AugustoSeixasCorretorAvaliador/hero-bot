@@ -1,9 +1,6 @@
 const wsStatusEl = document.getElementById('wsStatus');
 const lastEventEl = document.getElementById('lastEvent');
-const idleBtn = document.getElementById('idleBtn');
-const workingBtn = document.getElementById('workingBtn');
-const doneBtn = document.getElementById('doneBtn');
-const errorBtn = document.getElementById('errorBtn');
+const eventButtons = Array.from(document.querySelectorAll('[data-event]'));
 
 function setStatus(text) {
   wsStatusEl.textContent = text;
@@ -14,8 +11,19 @@ function setLastEvent(type, reason) {
 }
 
 function sendEvent(eventType, payload) {
-  chrome.runtime.sendMessage({ type: 'send_event', eventType, payload });
-  setLastEvent(eventType, payload?.reason);
+  chrome.runtime.sendMessage({ type: 'send_event', eventType, payload }, (response) => {
+    if (chrome.runtime.lastError) {
+      setLastEvent('ERROR', 'popup_send_failed');
+      return;
+    }
+
+    if (response?.success) {
+      setLastEvent(eventType, payload?.reason);
+      return;
+    }
+
+    setLastEvent('ERROR', 'popup_send_failed');
+  });
 }
 
 function init() {
@@ -25,10 +33,27 @@ function init() {
     }
   });
 
-  idleBtn.addEventListener('click', () => sendEvent('READY', { mvpState: 'IDLE', page: 'whatsapp-web', reason: 'manual_override' }));
-  workingBtn.addEventListener('click', () => sendEvent('THINKING', { mvpState: 'WORKING', page: 'whatsapp-web', reason: 'manual_override' }));
-  doneBtn.addEventListener('click', () => sendEvent('SUCCESS', { mvpState: 'DONE', page: 'whatsapp-web', reason: 'manual_override' }));
-  errorBtn.addEventListener('click', () => sendEvent('ERROR', { mvpState: 'ERROR', page: 'whatsapp-web', reason: 'manual_override' }));
+  for (const button of eventButtons) {
+    const heroEvent = button.dataset.event;
+    if (!heroEvent) {
+      continue;
+    }
+
+    button.addEventListener('click', () => {
+      sendEvent(heroEvent, {
+        heroEvent,
+        source: 'popup_manual_override',
+        page: 'whatsapp-web',
+        reason: 'manual_override'
+      });
+    });
+  }
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message?.type === 'status_update' && message.status) {
+      setStatus(message.status);
+    }
+  });
 }
 
 init();

@@ -55,6 +55,19 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 - triggers DOM do `content.js`
 - transformação em estados HERO.Bot no `background.js`
 
+### HeroEvents oficiais do HeroOS
+
+- `BOOT`
+- `READY`
+- `IDLE`
+- `THINKING`
+- `WRITING`
+- `SUCCESS`
+- `ERROR`
+- `HOT_LEADS`
+- `SLEEP`
+- `OFFLINE`
+
 ### Triggers enviados pelo `content.js`
 
 - `whatsapp_loaded`
@@ -77,6 +90,18 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 - após `SUCCESS` → espera 2000ms e volta para `READY`
 - `websocket_disconnected` → `OFFLINE`
 - `internal_error` → `ERROR`
+
+### Triggers futuros já preparados no mapper
+
+- `lead_detected` → `HOT_LEADS`
+- `system_boot` → `BOOT`
+- `sleep_timeout` → `SLEEP`
+- `wake_up` → `READY`
+
+### Override manual via popup
+
+- O popup envia HeroEvents diretamente para o `background.js` via mensagem `send_event`.
+- Esse override não passa pelo DOM e não altera a lógica automática de triggers do WhatsApp Web.
 
 ### Benefícios
 

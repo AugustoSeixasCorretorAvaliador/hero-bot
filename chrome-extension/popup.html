@@ -19,10 +19,16 @@
       <span>Último evento:</span> <strong id="lastEvent">Nenhum</strong>
     </div>
     <div class="buttons-row">
-      <button id="idleBtn" class="btn">IDLE</button>
-      <button id="workingBtn" class="btn">WORKING</button>
-      <button id="doneBtn" class="btn">DONE</button>
-      <button id="errorBtn" class="btn error">ERROR</button>
+      <button id="bootBtn" class="btn" data-event="BOOT">BOOT</button>
+      <button id="readyBtn" class="btn" data-event="READY">READY</button>
+      <button id="idleBtn" class="btn" data-event="IDLE">IDLE</button>
+      <button id="workingBtn" class="btn" data-event="THINKING">THINKING</button>
+      <button id="writingBtn" class="btn" data-event="WRITING">WRITING</button>
+      <button id="doneBtn" class="btn" data-event="SUCCESS">SUCCESS</button>
+      <button id="errorBtn" class="btn error" data-event="ERROR">ERROR</button>
+      <button id="hotLeadsBtn" class="btn" data-event="HOT_LEADS">HOT_LEADS</button>
+      <button id="sleepBtn" class="btn" data-event="SLEEP">SLEEP</button>
+      <button id="offlineBtn" class="btn error" data-event="OFFLINE">OFFLINE</button>
     </div>
     <div class="footer-note">Eventos enviados localmente ao HERO.Bot Simulator via WS.</div>
   </div>
