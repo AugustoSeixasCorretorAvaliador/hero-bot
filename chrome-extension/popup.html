@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HERO.Bot Extension</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="popup-container">
+    <h1>HERO.Bot Extension</h1>
+    <div class="status-row">
+      <span>Status WS:</span> <strong id="wsStatus">Connecting...</strong>
+    </div>
+    <div class="status-row">
+      <span>Página:</span> <strong id="pageStatus">WhatsApp Web</strong>
+    </div>
+    <div class="status-row">
+      <span>Último evento:</span> <strong id="lastEvent">Nenhum</strong>
+    </div>
+    <div class="buttons-row">
+      <button id="idleBtn" class="btn">IDLE</button>
+      <button id="workingBtn" class="btn">WORKING</button>
+      <button id="doneBtn" class="btn">DONE</button>
+      <button id="errorBtn" class="btn error">ERROR</button>
+    </div>
+    <div class="footer-note">Eventos enviados localmente ao HERO.Bot Simulator via WS.</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
