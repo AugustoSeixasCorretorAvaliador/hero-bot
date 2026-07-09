@@ -164,3 +164,11 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 - Adicionar mais estados de evento para HERO.Bot.
 - Integrar a extensão com menus e controles do HERO.Bot.
 - Futuro suporte ao display físico `Display32`.
+
+## 9. Device Bridge shadow
+
+- A base do `Device Bridge` já existe em modo shadow e não interfere no fluxo atual.
+- O bridge assina o `HeroEventBus` de forma passiva e pode repassar o mesmo envelope para um dispositivo futuro via WebSocket.
+- O destino planejado para a placa é `ws://<ip-do-s3>:8766`, com porta configurável.
+- O suporte BLE fica preparado apenas como stub, para ser ativado depois sem mudar os mappers existentes.
+- Quando a placa chegar, basta habilitar a ponte opcional e apontar o host/porta corretos.

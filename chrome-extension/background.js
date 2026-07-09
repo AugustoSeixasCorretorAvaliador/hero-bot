@@ -1,12 +1,18 @@
 import { HeroInteractionMapper } from './hero-interaction-mapper.js';
 import { ToolEventMapper } from './tool-event-mapper.js';
 import { InsightEventMapper } from './insight-event-mapper.js';
+import { createDeviceBridge } from './device-bridge.js';
 
 const WS_URL = 'ws://127.0.0.1:8765';
 const DEFAULT_SETTINGS = {
   showMiniOverlay: true,
   sendToSimulator: true,
-  overlayDebugTimeline: false
+  overlayDebugTimeline: false,
+  deviceBridgeEnabled: false,
+  deviceBridgeTransport: 'ws',
+  deviceBridgeHost: '',
+  deviceBridgePort: 8766,
+  deviceBridgeDebug: false
 };
 
 let ws = null;
@@ -14,6 +20,7 @@ let reconnectTimer = null;
 let status = 'Disconnected';
 let pendingEvents = [];
 let settings = { ...DEFAULT_SETTINGS };
+let deviceBridge = null;
 let heroEventBus = {
   publish: () => {},
   subscribe: () => () => {}
@@ -39,6 +46,7 @@ async function initHeroEventBusShadowMode() {
     });
 
     heroEventBus = bus;
+    initDeviceBridgeShadowMode();
     heroEventBus.publish({
       type: typesModule.HERO_EVENT_TYPES.STATE_DISPATCHED,
       state: 'BOOT',
@@ -66,7 +74,12 @@ function loadSettings() {
       settings = {
         showMiniOverlay: Boolean(stored?.showMiniOverlay),
         sendToSimulator: Boolean(stored?.sendToSimulator),
-        overlayDebugTimeline: Boolean(stored?.overlayDebugTimeline)
+        overlayDebugTimeline: Boolean(stored?.overlayDebugTimeline),
+        deviceBridgeEnabled: Boolean(stored?.deviceBridgeEnabled),
+        deviceBridgeTransport: stored?.deviceBridgeTransport || 'ws',
+        deviceBridgeHost: stored?.deviceBridgeHost || '',
+        deviceBridgePort: Number(stored?.deviceBridgePort || 8766),
+        deviceBridgeDebug: Boolean(stored?.deviceBridgeDebug)
       };
       resolve(settings);
     });
@@ -80,6 +93,41 @@ function saveSettings(nextSettings) {
       resolve(settings);
     });
   });
+}
+
+function getDeviceBridgeOptions() {
+  return {
+    enabled: Boolean(settings.deviceBridgeEnabled),
+    debug: Boolean(settings.deviceBridgeDebug),
+    transport: settings.deviceBridgeTransport || 'ws',
+    ws: {
+      enabled: Boolean(settings.deviceBridgeEnabled) && (settings.deviceBridgeTransport || 'ws') === 'ws',
+      host: settings.deviceBridgeHost || '',
+      port: Number(settings.deviceBridgePort || 8766)
+    },
+    ble: {
+      enabled: Boolean(settings.deviceBridgeEnabled) && (settings.deviceBridgeTransport || 'ws') === 'ble'
+    }
+  };
+}
+
+function syncDeviceBridge() {
+  if (!deviceBridge) {
+    return;
+  }
+
+  deviceBridge.updateConfig(getDeviceBridgeOptions());
+}
+
+function initDeviceBridgeShadowMode() {
+  if (deviceBridge) {
+    return;
+  }
+
+  deviceBridge = createDeviceBridge(heroEventBus, getDeviceBridgeOptions());
+  if (settings.deviceBridgeDebug) {
+    log('DeviceBridge shadow mode ready');
+  }
 }
 
 function sendOverlayConfigToTabs() {
@@ -354,12 +402,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message?.type === 'update_settings') {
     const nextSettings = {
+      ...settings,
       showMiniOverlay: Boolean(message.settings?.showMiniOverlay),
       sendToSimulator: Boolean(message.settings?.sendToSimulator),
       overlayDebugTimeline: Boolean(message.settings?.overlayDebugTimeline)
     };
 
     saveSettings(nextSettings).then(() => {
+      syncDeviceBridge();
       if (!settings.sendToSimulator && ws) {
         try {
           ws.close();
