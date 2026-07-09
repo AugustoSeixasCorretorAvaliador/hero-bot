@@ -98,6 +98,25 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
 - `sleep_timeout` → `SLEEP`
 - `wake_up` → `READY`
 
+### Insight Event Layer
+
+- A extensão possui um `InsightEventMapper` separado para tratar o evento `EVENT_INSIGHT`.
+- O mapper não altera `HeroInteractionMapper` nem `ToolEventMapper`.
+- O gatilho de insight observa apenas presença/visibilidade do popup lilás no DOM.
+- Nenhum conteúdo textual do popup é lido ou armazenado.
+- Se o popup permanecer visível após o ciclo de ferramenta concluir (`SUCCESS` e depois `READY`), o fluxo de insight é aplicado:
+  - `READY` → espera configurável (padrão `800ms`) → `EVENT_INSIGHT` → `1500ms` → `READY`
+- O popup lilás da HERO.IA não é fechado pela extensão.
+- O `EVENT_INSIGHT` é enviado para Mini Overlay e Simulator para manter compatibilidade entre camadas visuais.
+- Após emitir `EVENT_INSIGHT`, existe uma janela de silêncio (`postInsightSilenceMs`, padrão `4000ms`) para evitar retrigger imediato.
+
+### Tool Event Timing (configurável por ferramenta)
+
+- O `ToolEventMapper` permite configurar tempos por ferramenta.
+- Para ferramentas de IA (`TOOL_COPILOT` e `TOOL_RESPONSE_AI`), o `THINKING` mínimo padrão é `3000ms` antes de `WRITING` automático.
+- Se houver indício real de escrita/rascunho no DOM, o `WRITING` pode ser antecipado após cumprir mínimo de `1500ms` em `THINKING`.
+- Ferramentas rápidas como `TOOL_CREDIT` usam `THINKING` menor.
+
 ### Override manual via popup
 
 - O popup envia HeroEvents diretamente para o `background.js` via mensagem `send_event`.
@@ -127,6 +146,17 @@ A extensão agora usa uma camada `HeroInteractionMapper` para separar:
   2. Encontre `HERO.Bot Extension`.
   3. Clique em `Service worker` em `Inspect views`.
   4. Verifique os logs `WebSocket connected` e `Sending event`.
+
+### Mini timeline de transicao no overlay (opcional)
+
+- A mini timeline visual do overlay (exemplo: `TOOL_COPILOT -> THINKING -> WRITING -> SUCCESS -> READY`) e exibida apenas em modo debug.
+- Voce pode ativar de duas formas:
+  1. Pelo popup da extensao: marque `Debug: mini timeline no overlay`.
+  2. Pela URL da pagina: abra o WhatsApp Web com `?debug=true`.
+- Para desativar:
+  1. Desmarque `Debug: mini timeline no overlay` no popup.
+  2. Remova `debug=true` da URL.
+- A timeline e discreta e nao altera o fluxo funcional do mapeamento de estados.
 
 ## 8. Próximos passos
 

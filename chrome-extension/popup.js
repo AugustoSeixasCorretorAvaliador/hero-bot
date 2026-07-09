@@ -1,6 +1,9 @@
 const wsStatusEl = document.getElementById('wsStatus');
 const lastEventEl = document.getElementById('lastEvent');
 const eventButtons = Array.from(document.querySelectorAll('[data-event]'));
+const showMiniOverlayEl = document.getElementById('showMiniOverlay');
+const sendToSimulatorEl = document.getElementById('sendToSimulator');
+const overlayDebugTimelineEl = document.getElementById('overlayDebugTimeline');
 
 function setStatus(text) {
   wsStatusEl.textContent = text;
@@ -26,12 +29,56 @@ function sendEvent(eventType, payload) {
   });
 }
 
+function getSettings() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'get_settings' }, (response) => {
+      resolve(response?.settings || null);
+    });
+  });
+}
+
+function updateSettings(nextSettings) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'update_settings', settings: nextSettings }, (response) => {
+      resolve(response || null);
+    });
+  });
+}
+
 function init() {
   chrome.runtime.sendMessage({ type: 'get_status' }, (response) => {
     if (response?.status) {
       setStatus(response.status);
     }
   });
+
+  getSettings().then((settings) => {
+    if (!settings) {
+      return;
+    }
+
+    showMiniOverlayEl.checked = Boolean(settings.showMiniOverlay);
+    sendToSimulatorEl.checked = Boolean(settings.sendToSimulator);
+    overlayDebugTimelineEl.checked = Boolean(settings.overlayDebugTimeline);
+  });
+
+  const syncSettings = () => {
+    const nextSettings = {
+      showMiniOverlay: Boolean(showMiniOverlayEl.checked),
+      sendToSimulator: Boolean(sendToSimulatorEl.checked),
+      overlayDebugTimeline: Boolean(overlayDebugTimelineEl.checked)
+    };
+
+    updateSettings(nextSettings).then((response) => {
+      if (response?.status) {
+        setStatus(response.status);
+      }
+    });
+  };
+
+  showMiniOverlayEl.addEventListener('change', syncSettings);
+  sendToSimulatorEl.addEventListener('change', syncSettings);
+  overlayDebugTimelineEl.addEventListener('change', syncSettings);
 
   for (const button of eventButtons) {
     const heroEvent = button.dataset.event;

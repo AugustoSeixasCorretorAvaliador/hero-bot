@@ -1,5 +1,33 @@
 // New modular renderer initialization
 const EVENTS = [ 'BOOT','READY','IDLE','THINKING','WRITING','SUCCESS','ERROR','HOT_LEAD','SLEEP','OFFLINE' ]
+const TOOL_EVENTS = [
+  'TOOL_RESPONSE_AI',
+  'TOOL_COPILOT',
+  'TOOL_REWRITE',
+  'TOOL_PDF',
+  'TOOL_AUDIO',
+  'TOOL_CREDIT',
+  'TOOL_BULK_SEND',
+  'TOOL_MAPS_LEADS',
+  'TOOL_EXTRACT_CONTACTS',
+  'TOOL_HERO3D'
+]
+const INSIGHT_EVENTS = ['EVENT_INSIGHT']
+const TOOL_EVENT_META = {
+  TOOL_RESPONSE_AI: { label: 'Response AI', icon: 'AI', fallbackAnimation: 'thinking' },
+  TOOL_COPILOT: { label: 'Copilot', icon: 'CP', fallbackAnimation: 'thinking' },
+  TOOL_REWRITE: { label: 'Rewrite', icon: 'RW', fallbackAnimation: 'writing' },
+  TOOL_PDF: { label: 'PDF', icon: 'PDF', fallbackAnimation: 'writing' },
+  TOOL_AUDIO: { label: 'Audio', icon: 'AU', fallbackAnimation: 'writing' },
+  TOOL_CREDIT: { label: 'Credit', icon: 'CR', fallbackAnimation: 'thinking' },
+  TOOL_BULK_SEND: { label: 'Bulk Send', icon: 'BS', fallbackAnimation: 'writing' },
+  TOOL_MAPS_LEADS: { label: 'Maps Leads', icon: 'ML', fallbackAnimation: 'thinking' },
+  TOOL_EXTRACT_CONTACTS: { label: 'Extract Contacts', icon: 'EC', fallbackAnimation: 'thinking' },
+  TOOL_HERO3D: { label: 'HERO3D', icon: '3D', fallbackAnimation: 'thinking' }
+}
+const INSIGHT_EVENT_META = {
+  EVENT_INSIGHT: { label: 'Insight', icon: 'IN', fallbackAnimation: 'thinking' }
+}
 
 const logEl = document.getElementById('log')
 const stateEl = document.getElementById('state')
@@ -16,14 +44,62 @@ function isOfficialHeroEvent(type) {
   return EVENTS.includes(type)
 }
 
+function isToolHeroEvent(type) {
+  return TOOL_EVENTS.includes(type)
+}
+
+function isInsightHeroEvent(type) {
+  return INSIGHT_EVENTS.includes(type)
+}
+
 function resolveIncomingExperience(ev) {
-  if (!ev || !isOfficialHeroEvent(ev.type)) {
+  if (!ev || (!isOfficialHeroEvent(ev.type) && !isToolHeroEvent(ev.type) && !isInsightHeroEvent(ev.type))) {
     return null
   }
 
   const fromCatalog = EXPERIENCE_CATALOG[ev.type]
   if (fromCatalog) {
     return fromCatalog
+  }
+
+  if (isToolHeroEvent(ev.type)) {
+    const meta = TOOL_EVENT_META[ev.type] || {
+      label: ev.type,
+      icon: 'TOOL',
+      fallbackAnimation: 'thinking'
+    }
+
+    return {
+      id: ev.type,
+      title: meta.label,
+      animation: meta.fallbackAnimation,
+      sound: null,
+      loop: true,
+      duration: 1500,
+      priority: 2,
+      next: null,
+      toolIcon: meta.icon
+    }
+  }
+
+  if (isInsightHeroEvent(ev.type)) {
+    const meta = INSIGHT_EVENT_META[ev.type] || {
+      label: ev.type,
+      icon: 'IN',
+      fallbackAnimation: 'thinking'
+    }
+
+    return {
+      id: ev.type,
+      title: meta.label,
+      animation: meta.fallbackAnimation,
+      sound: null,
+      loop: true,
+      duration: 1500,
+      priority: 1,
+      next: null,
+      toolIcon: meta.icon
+    }
   }
 
   return {
@@ -127,12 +203,36 @@ function setAnimation(a) {
   faceEl.textContent = a[0] || ':'
 }
 
+function setToolStateDisplay(experience) {
+  if (!experience || (!isToolHeroEvent(experience.id) && !isInsightHeroEvent(experience.id))) {
+    return false
+  }
+
+  const icon = experience.toolIcon || (isInsightHeroEvent(experience.id) ? 'IN' : 'TOOL')
+  stateEl.textContent = `${icon} ${experience.title}`
+  animEl.textContent = `${experience.id}`
+  faceEl.textContent = icon
+  return true
+}
+
 // build test buttons (TestPanel)
 const btnContainer = document.getElementById('eventButtons')
 EVENTS.forEach(name => {
   const b = document.createElement('button')
   b.textContent = name
   b.onclick = () => publish({ type: name, source: 'simulator', payload: name })
+  btnContainer.appendChild(b)
+})
+TOOL_EVENTS.forEach(name => {
+  const b = document.createElement('button')
+  b.textContent = name
+  b.onclick = () => publish({ type: name, source: 'simulator', payload: { layer: 'HERO_TOOL_EVENTS', trigger: 'manual_tool_test' } })
+  btnContainer.appendChild(b)
+})
+INSIGHT_EVENTS.forEach(name => {
+  const b = document.createElement('button')
+  b.textContent = name
+  b.onclick = () => publish({ type: name, source: 'simulator', payload: { layer: 'HERO_INSIGHT_EVENTS', trigger: 'manual_insight_test' } })
   btnContainer.appendChild(b)
 })
 
@@ -192,6 +292,12 @@ window.electronAPI.onHeroEvent((ev)=>{
   setState(experience.id)
   playExperienceSound(experience.sound)
   scheduleAutoTransition(experience)
+
+  if (setToolStateDisplay(experience)) {
+    timeline.push(ev, stateEl.textContent, experience.animation, experience.duration || 1500)
+    inspector.update({ state: stateEl.textContent, lastEvent: ev.type, queueLength: 0, animation: experience.animation, fps: '-', timeInState: (experience.duration || 1500)+'ms' })
+    return
+  }
 
   const anim = experience.animation
   setAnimation(anim)

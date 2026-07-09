@@ -29,6 +29,26 @@ h1 {
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.08);
 }
+.settings-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #d8e6f3;
+}
+.toggle-row input {
+  width: 14px;
+  height: 14px;
+}
 .buttons-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

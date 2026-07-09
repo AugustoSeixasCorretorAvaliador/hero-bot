@@ -18,6 +18,20 @@
     <div class="status-row">
       <span>Último evento:</span> <strong id="lastEvent">Nenhum</strong>
     </div>
+    <div class="settings-box">
+      <label class="toggle-row" for="showMiniOverlay">
+        <input id="showMiniOverlay" type="checkbox" checked />
+        <span>Mostrar Mini Overlay</span>
+      </label>
+      <label class="toggle-row" for="sendToSimulator">
+        <input id="sendToSimulator" type="checkbox" checked />
+        <span>Enviar também para Simulator</span>
+      </label>
+      <label class="toggle-row" for="overlayDebugTimeline">
+        <input id="overlayDebugTimeline" type="checkbox" />
+        <span>Debug: mini timeline no overlay</span>
+      </label>
+    </div>
     <div class="buttons-row">
       <button id="bootBtn" class="btn" data-event="BOOT">BOOT</button>
       <button id="readyBtn" class="btn" data-event="READY">READY</button>
@@ -30,7 +44,7 @@
       <button id="sleepBtn" class="btn" data-event="SLEEP">SLEEP</button>
       <button id="offlineBtn" class="btn error" data-event="OFFLINE">OFFLINE</button>
     </div>
-    <div class="footer-note">Eventos enviados localmente ao HERO.Bot Simulator via WS.</div>
+    <div class="footer-note">Eventos locais: Mini Overlay + Simulator (opcional via WS).</div>
   </div>
   <script src="popup.js"></script>
 </body>

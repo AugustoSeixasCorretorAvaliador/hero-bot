@@ -1,0 +1,18 @@
+export const HERO_EVENT_LAYERS = Object.freeze({
+  OFFICIAL_STATES: 'OFFICIAL_STATES',
+  HERO_TOOL_EVENTS: 'HERO_TOOL_EVENTS',
+  HERO_INSIGHT_EVENTS: 'HERO_INSIGHT_EVENTS',
+  UNKNOWN: 'UNKNOWN'
+});
+
+export function resolveHeroEventLayer(payload = {}) {
+  if (payload?.layer === HERO_EVENT_LAYERS.HERO_TOOL_EVENTS) {
+    return HERO_EVENT_LAYERS.HERO_TOOL_EVENTS;
+  }
+
+  if (payload?.layer === HERO_EVENT_LAYERS.HERO_INSIGHT_EVENTS) {
+    return HERO_EVENT_LAYERS.HERO_INSIGHT_EVENTS;
+  }
+
+  return HERO_EVENT_LAYERS.OFFICIAL_STATES;
+}
