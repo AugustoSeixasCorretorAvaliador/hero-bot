@@ -2,6 +2,8 @@ let lastMessageText = '';
 let lastInteractionTime = 0;
 let lastInteractionWasTyping = false;
 let sendCheckTimer = null;
+let composerMutationTimer = null;
+let documentMutationTimer = null;
 let extensionRuntimeAvailable = true;
 let overlayEnabled = true;
 let heroOverlay = null;
@@ -363,6 +365,20 @@ function attachMessageBoxListeners() {
   messageBox.addEventListener('pointerenter', () => {
     sendInteraction('composition_mouse_enter', { reason: 'pointerenter' });
   }, true);
+
+  const composerObserver = new MutationObserver(() => {
+    clearTimeout(composerMutationTimer);
+    composerMutationTimer = setTimeout(() => {
+      sendContentChanged();
+      scheduleSendCheck();
+    }, 150);
+  });
+  composerObserver.observe(messageBox, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+  messageBox.__heroComposerObserver = composerObserver;
 }
 
 function isInsideMessageBox(target) {
@@ -969,51 +985,31 @@ function setupMutationObserver() {
     return;
   }
 
-  const observer = new MutationObserver((mutations) => {
-    const messageBox = findMessageBox();
-    if (!messageBox) {
+  const observer = new MutationObserver(() => {
+    if (documentMutationTimer) {
       return;
     }
 
-    attachMessageBoxListeners();
-    const currentText = getMessageBoxText();
-    if (lastMessageText && currentText === '' && Date.now() - lastInteractionTime < 3000) {
-      log('message box cleared after mutation, checking for send');
-      sendInteraction('enter_key_send', { reason: 'message_box_cleared' });
+    documentMutationTimer = setTimeout(() => {
+      documentMutationTimer = null;
+      attachMessageBoxListeners();
+
+      const currentText = getMessageBoxText();
+      if (lastMessageText && currentText === '' && Date.now() - lastInteractionTime < 3000) {
+        log('message box cleared after mutation, checking for send');
+        sendInteraction('enter_key_send', { reason: 'message_box_cleared' });
+      }
       lastMessageText = currentText;
-      return;
-    }
-
-    for (const mutation of mutations) {
-      if (mutation.type === 'characterData') {
-        const parent = mutation.target.parentElement;
-        if (parent?.closest('footer, [data-testid="conversation-panel-messages"], #main, #pane-side')) {
-          log('mutation detected (characterData)');
-          sendInteraction('content_changed', { reason: 'dom_characterData' });
-          sendToolProgress('writing_detected', 'dom_characterData');
-          break;
-        }
-      }
-
-      const nodes = [...mutation.addedNodes, ...mutation.removedNodes];
-      for (const node of nodes) {
-        if (!(node instanceof HTMLElement)) {
-          continue;
-        }
-        if (node.closest('footer, [data-testid="conversation-panel-messages"], #main, #pane-side')) {
-          log('mutation detected (node change)');
-          sendInteraction('content_changed', { reason: 'dom_node_change' });
-          sendToolProgress('writing_detected', 'dom_node_change');
-          break;
-        }
-      }
-    }
-
-    lastMessageText = currentText;
-    notifyInsightVisibilityIfChanged('dom_mutation');
+      notifyInsightVisibilityIfChanged('dom_mutation_debounced');
+    }, 250);
   });
 
-  observer.observe(target, { childList: true, subtree: true, characterData: true });
+  observer.observe(target, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style', 'class', 'hidden']
+  });
 }
 
 function setupInsightPopupObserver() {
@@ -1023,12 +1019,6 @@ function setupInsightPopupObserver() {
   }
 
   notifyInsightVisibilityIfChanged('init_scan');
-
-  const observer = new MutationObserver(() => {
-    notifyInsightVisibilityIfChanged('insight_popup_mutation');
-  });
-
-  observer.observe(target, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
 }
 
 function init() {

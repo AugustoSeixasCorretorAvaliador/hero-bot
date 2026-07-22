@@ -4,6 +4,10 @@ import { InsightEventMapper } from './insight-event-mapper.js';
 import { createDeviceBridge } from './device-bridge.js';
 
 const WS_URL = 'ws://127.0.0.1:8765';
+const RECONNECT_MIN_DELAY_MS = 2000;
+const RECONNECT_MAX_DELAY_MS = 60000;
+const MAX_PENDING_EVENTS = 25;
+const PENDING_EVENT_TTL_MS = 30000;
 const DEFAULT_SETTINGS = {
   showMiniOverlay: true,
   sendToSimulator: true,
@@ -17,6 +21,7 @@ const DEFAULT_SETTINGS = {
 
 let ws = null;
 let reconnectTimer = null;
+let reconnectDelayMs = RECONNECT_MIN_DELAY_MS;
 let status = 'Disconnected';
 let pendingEvents = [];
 let settings = { ...DEFAULT_SETTINGS };
@@ -180,10 +185,14 @@ function dispatchOverlayState(type, payload = {}) {
 }
 
 function flushPendingEvents() {
-  if (!pendingEvents.length || !ws || ws.readyState !== WebSocket.OPEN) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
     return;
   }
 
+  prunePendingEvents();
+  if (!pendingEvents.length) {
+    return;
+  }
   log('Flushing', pendingEvents.length, 'pending events');
   while (pendingEvents.length) {
     const event = pendingEvents.shift();
@@ -192,16 +201,53 @@ function flushPendingEvents() {
     } catch (error) {
       log('WebSocket send failed while flushing pending events:', error);
       pendingEvents.unshift(event);
-      if (ws) {
+      const failedSocket = ws;
+      ws = null;
+      if (failedSocket) {
         try {
-          ws.close();
+          failedSocket.close();
         } catch (_) {}
       }
-      ws = null;
-      connect();
+      scheduleReconnect();
       break;
     }
   }
+}
+
+function prunePendingEvents(now = Date.now()) {
+  pendingEvents = pendingEvents.filter((event) => {
+    const timestamp = Number(event?.timestamp || 0);
+    return timestamp > 0 && now - timestamp <= PENDING_EVENT_TTL_MS;
+  });
+}
+
+function queuePendingEvent(event) {
+  prunePendingEvents();
+
+  const previous = pendingEvents[pendingEvents.length - 1];
+  if (previous?.type === event?.type && previous?.payload?.layer === event?.payload?.layer) {
+    pendingEvents[pendingEvents.length - 1] = event;
+    return;
+  }
+
+  pendingEvents.push(event);
+  if (pendingEvents.length > MAX_PENDING_EVENTS) {
+    pendingEvents.splice(0, pendingEvents.length - MAX_PENDING_EVENTS);
+  }
+}
+
+function scheduleReconnect() {
+  if (!settings.sendToSimulator || reconnectTimer) {
+    return;
+  }
+
+  const jitterMs = Math.floor(Math.random() * Math.min(1000, reconnectDelayMs / 4));
+  const waitMs = reconnectDelayMs + jitterMs;
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    connect();
+  }, waitMs);
+  reconnectDelayMs = Math.min(RECONNECT_MAX_DELAY_MS, reconnectDelayMs * 2);
 }
 
 function connect() {
@@ -215,33 +261,32 @@ function connect() {
   }
 
   updateStatus('Reconnecting');
-  ws = new WebSocket(WS_URL);
+  const socket = new WebSocket(WS_URL);
+  ws = socket;
 
-  ws.addEventListener('open', () => {
+  socket.addEventListener('open', () => {
+    if (ws !== socket) return;
     log('WebSocket connected');
+    reconnectDelayMs = RECONNECT_MIN_DELAY_MS;
     updateStatus('Connected');
     flushPendingEvents();
   });
 
-  ws.addEventListener('close', () => {
+  socket.addEventListener('close', () => {
+    if (ws !== socket) return;
     log('WebSocket disconnected');
+    ws = null;
     updateStatus('Disconnected');
-    heroInteractionMapper.handleInteraction('websocket_disconnected', { reason: 'ws_close' });
-    if (!reconnectTimer) {
-      reconnectTimer = setTimeout(() => {
-        reconnectTimer = null;
-        connect();
-      }, 2000);
-    }
+    scheduleReconnect();
   });
 
-  ws.addEventListener('error', (error) => {
+  socket.addEventListener('error', (error) => {
+    if (ws !== socket) return;
     log('WebSocket error', error);
+    ws = null;
     updateStatus('Disconnected');
-    heroInteractionMapper.handleInteraction('internal_error', { error: error?.message || 'WebSocket error' });
-    if (ws) {
-      ws.close();
-    }
+    socket.close();
+    scheduleReconnect();
   });
 }
 
@@ -259,19 +304,22 @@ function sendHeroBotEvent(type, payload = {}) {
       ws.send(JSON.stringify(event));
     } catch (error) {
       log('WebSocket send failed:', error);
-      pendingEvents.push(event);
-      if (ws) {
+      queuePendingEvent(event);
+      const failedSocket = ws;
+      ws = null;
+      if (failedSocket) {
         try {
-          ws.close();
+          failedSocket.close();
         } catch (_) {}
       }
-      ws = null;
-      connect();
+      scheduleReconnect();
     }
   } else {
     log('Queueing event because WebSocket is not open');
-    pendingEvents.push(event);
-    connect();
+    queuePendingEvent(event);
+    if (!reconnectTimer) {
+      connect();
+    }
   }
   return event;
 }
@@ -418,9 +466,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       if (settings.sendToSimulator) {
+        reconnectDelayMs = RECONNECT_MIN_DELAY_MS;
         updateStatus('Reconnecting');
         connect();
       } else {
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        pendingEvents = [];
         updateStatus('Disabled');
       }
 
