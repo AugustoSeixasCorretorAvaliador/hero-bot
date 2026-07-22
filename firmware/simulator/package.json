@@ -4,7 +4,9 @@
   "description": "HERO.Bot desktop simulator (Electron)",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "smoke:ws": "node scripts/ws-smoke-test.js"
   },
   "dependencies": {
     "ws": "^8.13.0"
