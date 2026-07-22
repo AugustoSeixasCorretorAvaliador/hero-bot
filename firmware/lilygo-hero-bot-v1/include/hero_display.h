@@ -28,6 +28,7 @@ private:
   void drawConnectionFooter(int16_t x, const char* label, const char* ip,
                             bool connected, bool wifiIcon);
   uint16_t eventColor(const char* eventName) const;
+  const char* eventLabel(const char* eventName) const;
   const char* eventSubtitle(const char* eventName) const;
 };
 

@@ -169,7 +169,7 @@ void HeroDisplay::drawEventIcon(int16_t x, int16_t y, const char* eventName,
 
 void HeroDisplay::drawEventRow(int16_t y, const char* eventName, bool latest) {
   const bool hasEvent = eventName != nullptr && eventName[0] != '\0';
-  const char* visibleName = hasEvent ? eventName : "AGUARDANDO...";
+  const char* visibleName = hasEvent ? eventLabel(eventName) : "AGUARDANDO...";
   const uint16_t accent = hasEvent ? eventColor(eventName) : HERO_MUTED;
 
   tft_.fillRoundRect(8, y, 304, 27, 6, HERO_CARD);
@@ -220,6 +220,21 @@ uint16_t HeroDisplay::eventColor(const char* eventName) const {
   if (std::strcmp(eventName, "SLEEP") == 0) return HERO_PURPLE;
   if (std::strcmp(eventName, "OFFLINE") == 0) return HERO_MUTED;
   return TFT_CYAN;
+}
+
+const char* HeroDisplay::eventLabel(const char* eventName) const {
+  if (std::strcmp(eventName, "BOOT") == 0) return "INICIANDO";
+  if (std::strcmp(eventName, "HERO_READY") == 0) return "PRONTO";
+  if (std::strcmp(eventName, "HERO_OPEN") == 0) return "HERO ATIVO";
+  if (std::strcmp(eventName, "IDLE") == 0) return "AGUARDANDO";
+  if (std::strcmp(eventName, "THINKING") == 0) return "PENSANDO";
+  if (std::strcmp(eventName, "WRITING") == 0) return "ESCREVENDO";
+  if (std::strcmp(eventName, "SUCCESS") == 0) return "CONCLUIDO";
+  if (std::strcmp(eventName, "ERROR") == 0) return "ERRO";
+  if (std::strcmp(eventName, "LEAD_HOT") == 0) return "LEAD QUENTE";
+  if (std::strcmp(eventName, "SLEEP") == 0) return "DESCANSANDO";
+  if (std::strcmp(eventName, "OFFLINE") == 0) return "SEM CONEXAO";
+  return eventName;
 }
 
 const char* HeroDisplay::eventSubtitle(const char* eventName) const {
