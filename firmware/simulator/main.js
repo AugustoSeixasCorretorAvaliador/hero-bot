@@ -1,27 +1,26 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
-const WebSocket = require('ws')
 const fs = require('fs').promises
+const {
+  DEFAULT_WS_HOST,
+  DEFAULT_WS_PORT,
+  createHeroWebSocketServer
+} = require('./hero-ws-server')
 
-// WebSocket server port and host for HeroOS bridge (bind to localhost only)
-const WS_PORT = 8765
-const WS_HOST = '127.0.0.1'
+// Listen on the LAN. The Windows firewall must restrict this port to private
+// networks; no firewall rule is created automatically.
+const configuredPort = Number.parseInt(process.env.HERO_WS_PORT || '', 10)
+const WS_PORT = Number.isInteger(configuredPort) ? configuredPort : DEFAULT_WS_PORT
+const WS_HOST = DEFAULT_WS_HOST
+const WS_TOKEN = process.env.HERO_WS_TOKEN || ''
 
-// Create WebSocket server bound to localhost only
-const wss = new WebSocket.Server({ port: WS_PORT, host: WS_HOST })
-
-wss.on('connection', (ws) => {
-  console.log('WebSocket client connected')
-  ws.on('message', (message) => {
-    try {
-      const obj = JSON.parse(message)
-      // forward WS events to renderer windows
-      BrowserWindow.getAllWindows().forEach(w => w.webContents.send('hero:event', obj))
-    } catch (e) {
-      console.error('Invalid WS message', e)
-    }
-  })
-  ws.send(JSON.stringify({ type: 'SIMULATOR_CONNECTED', source: 'simulator' }))
+const heroWsServer = createHeroWebSocketServer({
+  host: WS_HOST,
+  port: WS_PORT,
+  token: WS_TOKEN,
+  onEvent: (heroEvent) => {
+    BrowserWindow.getAllWindows().forEach(w => w.webContents.send('hero:event', heroEvent))
+  }
 })
 
 // IPC: provide animations list and contents to renderer
@@ -89,13 +88,14 @@ app.on('window-all-closed', function () {
 
 // Simple IPC bridge: main can emit simulated HeroEvents to renderer
 ipcMain.on('simulator:publishEvent', (event, heroEvent) => {
-  BrowserWindow.getAllWindows().forEach(w => w.webContents.send('hero:event', heroEvent))
-  // forward published events to any connected WS clients
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(heroEvent))
-    }
-  })
+  const result = heroWsServer.publishFromRenderer(heroEvent)
+  if (!result.ok) console.warn('Simulator event rejected:', result.reason)
 })
 
-console.log(`Simulator WebSocket bridge listening on ws://${WS_HOST}:${WS_PORT} (bound to localhost only)`)
+heroWsServer.ready
+  .then(() => console.log(`Simulator WebSocket bridge listening on ws://${WS_HOST}:${WS_PORT} (LAN enabled, token ${WS_TOKEN ? 'enabled' : 'disabled'})`))
+  .catch(error => console.error('Failed to start WebSocket bridge:', error))
+
+app.on('before-quit', () => {
+  heroWsServer.close().catch(() => {})
+})

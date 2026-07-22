@@ -29,6 +29,12 @@ const INSIGHT_EVENT_META = {
   EVENT_INSIGHT: { label: 'Insight', icon: 'IN', fallbackAnimation: 'thinking' }
 }
 
+const VISUAL_EVENT_ALIASES = {
+  HERO_READY: 'READY',
+  HERO_OPEN: 'READY',
+  LEAD_HOT: 'HOT_LEAD'
+}
+
 const logEl = document.getElementById('log')
 const stateEl = document.getElementById('state')
 const animEl = document.getElementById('animation')
@@ -53,24 +59,25 @@ function isInsightHeroEvent(type) {
 }
 
 function resolveIncomingExperience(ev) {
-  if (!ev || (!isOfficialHeroEvent(ev.type) && !isToolHeroEvent(ev.type) && !isInsightHeroEvent(ev.type))) {
+  const visualType = VISUAL_EVENT_ALIASES[ev?.type] || ev?.type
+  if (!ev || (!isOfficialHeroEvent(visualType) && !isToolHeroEvent(visualType) && !isInsightHeroEvent(visualType))) {
     return null
   }
 
-  const fromCatalog = EXPERIENCE_CATALOG[ev.type]
+  const fromCatalog = EXPERIENCE_CATALOG[visualType]
   if (fromCatalog) {
     return fromCatalog
   }
 
-  if (isToolHeroEvent(ev.type)) {
-    const meta = TOOL_EVENT_META[ev.type] || {
-      label: ev.type,
+  if (isToolHeroEvent(visualType)) {
+    const meta = TOOL_EVENT_META[visualType] || {
+      label: visualType,
       icon: 'TOOL',
       fallbackAnimation: 'thinking'
     }
 
     return {
-      id: ev.type,
+      id: visualType,
       title: meta.label,
       animation: meta.fallbackAnimation,
       sound: null,
@@ -82,15 +89,15 @@ function resolveIncomingExperience(ev) {
     }
   }
 
-  if (isInsightHeroEvent(ev.type)) {
-    const meta = INSIGHT_EVENT_META[ev.type] || {
-      label: ev.type,
+  if (isInsightHeroEvent(visualType)) {
+    const meta = INSIGHT_EVENT_META[visualType] || {
+      label: visualType,
       icon: 'IN',
       fallbackAnimation: 'thinking'
     }
 
     return {
-      id: ev.type,
+      id: visualType,
       title: meta.label,
       animation: meta.fallbackAnimation,
       sound: null,
@@ -103,10 +110,10 @@ function resolveIncomingExperience(ev) {
   }
 
   return {
-    id: ev.type,
-    title: ev.type,
-    animation: ev.type.toLowerCase(),
-    sound: `${ev.type.toLowerCase()}.mp3`,
+    id: visualType,
+    title: visualType,
+    animation: visualType.toLowerCase(),
+    sound: `${visualType.toLowerCase()}.mp3`,
     loop: true,
     duration: 0,
     priority: 0,
