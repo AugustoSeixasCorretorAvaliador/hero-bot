@@ -11,7 +11,8 @@ void HeroDisplayRenderer::renderConnection(bool wifiConnected,
   display_.showBridgeStatus(wifiConnected ? "conectado" : "desconectado",
                             wifiIp.c_str(), webSocketStatus, webSocketIp.c_str(),
                             eventHistory_[0].c_str(), eventHistory_[1].c_str(),
-                            eventHistory_[2].c_str());
+                            eventHistory_[2].c_str(), batteryPercent_,
+                            batteryPresent_);
 }
 
 void HeroDisplayRenderer::renderEvent(const HeroEvent& event, bool wifiConnected,
@@ -23,6 +24,11 @@ void HeroDisplayRenderer::renderEvent(const HeroEvent& event, bool wifiConnected
   eventHistory_[0] = event.typeName;
   lastEventName_ = eventHistory_[0];
   renderConnection(wifiConnected, webSocketStatus, wifiIp, webSocketIp);
+}
+
+void HeroDisplayRenderer::setBatteryStatus(uint8_t percent, bool present) {
+  batteryPercent_ = percent;
+  batteryPresent_ = present;
 }
 
 const String& HeroDisplayRenderer::lastEventName() const {

@@ -34,6 +34,27 @@ bool HeroDisplay::begin() {
          tft_.height() == HERO_DISPLAY_LOGICAL_HEIGHT;
 }
 
+void HeroDisplay::sleep() {
+  if (sleeping_) return;
+  digitalWrite(HERO_DISPLAY_BACKLIGHT_PIN, !HERO_DISPLAY_BACKLIGHT_ON);
+  sleeping_ = true;
+}
+
+void HeroDisplay::wake() {
+  if (!sleeping_) return;
+  digitalWrite(HERO_DISPLAY_BACKLIGHT_PIN, HERO_DISPLAY_BACKLIGHT_ON);
+  sleeping_ = false;
+}
+
+void HeroDisplay::prepareForDeepSleep() {
+  sleep();
+  tft_.writecommand(0x10);  // ST7789 sleep-in command.
+}
+
+bool HeroDisplay::isSleeping() const {
+  return sleeping_;
+}
+
 void HeroDisplay::drawColorTestBar() {
   constexpr uint16_t colorCount = 4;
   const uint16_t colors[colorCount] = {TFT_RED, TFT_GREEN, TFT_BLUE, TFT_YELLOW};
@@ -210,6 +231,31 @@ void HeroDisplay::drawConnectionFooter(int16_t x, const char* label, const char*
   }
 }
 
+void HeroDisplay::drawBatteryIndicator(uint8_t percent, bool batteryPresent) {
+  const int16_t batteryX = 129;
+  const int16_t batteryY = 10;
+  const uint16_t color = !batteryPresent ? HERO_MUTED
+                           : percent <= 15 ? TFT_RED
+                           : percent <= 35 ? TFT_YELLOW
+                                           : TFT_GREEN;
+
+  tft_.drawRoundRect(batteryX, batteryY, 25, 13, 2, color);
+  tft_.fillRect(batteryX + 25, batteryY + 4, 3, 5, color);
+  if (batteryPresent) {
+    const int16_t fillWidth = (21 * percent) / 100;
+    if (fillWidth > 0) {
+      tft_.fillRect(batteryX + 2, batteryY + 2, fillWidth, 9, color);
+    }
+  }
+
+  char label[6];
+  if (batteryPresent) snprintf(label, sizeof(label), "%u%%", percent);
+  else snprintf(label, sizeof(label), "USB");
+  tft_.setTextDatum(ML_DATUM);
+  tft_.setTextColor(color, HERO_BG);
+  tft_.drawString(label, batteryX + 34, batteryY + 7, 2);
+}
+
 uint16_t HeroDisplay::eventColor(const char* eventName) const {
   if (std::strcmp(eventName, "ERROR") == 0) return TFT_RED;
   if (std::strcmp(eventName, "SUCCESS") == 0 ||
@@ -250,7 +296,8 @@ const char* HeroDisplay::eventSubtitle(const char* eventName) const {
 void HeroDisplay::showBridgeStatus(const char* wifiStatus, const char* wifiIp,
                                    const char* webSocketStatus, const char* webSocketIp,
                                    const char* latestEvent, const char* previousEvent,
-                                   const char* oldestEvent) {
+                                   const char* oldestEvent, uint8_t batteryPercent,
+                                   bool batteryPresent) {
   const bool wifiHealthy = std::strcmp(wifiStatus, "conectado") == 0;
   const bool webSocketHealthy = std::strcmp(webSocketStatus, "conectado") == 0;
   const bool hasLatestEvent = latestEvent != nullptr && latestEvent[0] != '\0';
@@ -266,9 +313,10 @@ void HeroDisplay::showBridgeStatus(const char* wifiStatus, const char* wifiIp,
   drawMoodFace(292, 19, currentEventColor);
   tft_.setTextDatum(TL_DATUM);
   tft_.setTextColor(TFT_WHITE, HERO_BG);
-  tft_.drawString("HERO.Bot", 51, 5, 4);
+  tft_.drawString("HERO.Bot", 48, 7, 2);
   tft_.setTextColor(currentEventColor, HERO_BG);
-  tft_.drawString(eventSubtitle(hasLatestEvent ? latestEvent : ""), 53, 27, 1);
+  tft_.drawString(eventSubtitle(hasLatestEvent ? latestEvent : ""), 48, 25, 1);
+  drawBatteryIndicator(batteryPercent, batteryPresent);
 
   drawEventRow(38, latestEvent, true);
   drawEventRow(68, previousEvent, false);

@@ -56,5 +56,10 @@ constexpr uint8_t HERO_DISPLAY_BACKLIGHT_ON = 1;
 
 constexpr uint8_t HERO_BUTTON_1_PIN = 0;
 constexpr uint8_t HERO_BUTTON_2_PIN = 14;
+constexpr uint8_t HERO_BATTERY_VOLTAGE_PIN = 4;
+constexpr uint8_t HERO_TOUCH_I2C_SCL_PIN = 17;
+constexpr uint8_t HERO_TOUCH_I2C_SDA_PIN = 18;
+constexpr uint8_t HERO_TOUCH_INTERRUPT_PIN = 16;
+constexpr uint8_t HERO_TOUCH_RESET_PIN = 21;
 
 #endif

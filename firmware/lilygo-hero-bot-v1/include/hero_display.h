@@ -12,10 +12,16 @@ public:
   void showBridgeStatus(const char* wifiStatus, const char* wifiIp,
                         const char* webSocketStatus, const char* webSocketIp,
                         const char* latestEvent, const char* previousEvent,
-                        const char* oldestEvent);
+                        const char* oldestEvent, uint8_t batteryPercent,
+                        bool batteryPresent);
+  void sleep();
+  void wake();
+  void prepareForDeepSleep();
+  bool isSleeping() const;
 
 private:
   TFT_eSPI tft_;
+  bool sleeping_ = false;
 
   void drawColorTestBar();
   void drawCentered(const char* text, int32_t y, uint8_t font, uint16_t color);
@@ -27,6 +33,7 @@ private:
   void drawEventRow(int16_t y, const char* eventName, bool latest);
   void drawConnectionFooter(int16_t x, const char* label, const char* ip,
                             bool connected, bool wifiIcon);
+  void drawBatteryIndicator(uint8_t percent, bool batteryPresent);
   uint16_t eventColor(const char* eventName) const;
   const char* eventLabel(const char* eventName) const;
   const char* eventSubtitle(const char* eventName) const;
